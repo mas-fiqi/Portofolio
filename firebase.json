@@ -14,11 +14,20 @@
     ],
     "headers": [
       {
-        "source": "**/*.@(js|html|json)",
+        "source": "**/*.@(js|css|woff2|woff|ttf|png|jpg|jpeg|webp)",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
+            "value": "public, max-age=604800, stale-while-revalidate=86400"
+          }
+        ]
+      },
+      {
+        "source": "index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate, max-age=0"
           }
         ]
       },

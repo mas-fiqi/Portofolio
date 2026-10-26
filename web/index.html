@@ -34,11 +34,78 @@
   <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="manifest" href="manifest.json">
 
-  <title>Omar Wica Yudi | Portfolio</title>
+  <!-- Preconnect to CDN & Fonts for faster loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <title>Moh. Rafiqi Wahyudi | Portfolio</title>
+
+  <style>
+    /* Instant CSS Splash Loader - Appears in 0.01s so visitor never sees blank white screen */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F8FAFC;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+    }
+    #loading-indicator {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 75% 25%, #EEF2FF 0%, #F8FAFC 70%);
+      z-index: 99999;
+      transition: opacity 0.4s ease-out;
+    }
+    .brand-icon {
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-size: 24px;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+      margin-bottom: 20px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    .spinner-ring {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(99, 102, 241, 0.15);
+      border-top: 3px solid #6366F1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-text {
+      margin-top: 14px;
+      color: #64748B;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
 
   <!-- 
-    firebase_core_web 2.x requires Firebase JS SDK to be loaded.
-    Using the exact version compatible with firebase_core ^3.x / firebase_core_web ^2.x
+    firebase_core_web requires Firebase JS SDK
   -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -46,6 +113,22 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
 </head>
 <body>
+  <!-- Instant Visual Brand Loader -->
+  <div id="loading-indicator">
+    <div class="brand-icon">F</div>
+    <div class="spinner-ring"></div>
+    <div class="loading-text">Memuat Fiqi.dev...</div>
+  </div>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function() {
+      const el = document.getElementById('loading-indicator');
+      if (el) {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 400);
+      }
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
