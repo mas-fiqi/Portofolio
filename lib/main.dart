@@ -100,7 +100,7 @@ class PortfolioApp extends StatelessWidget {
     );
 
     return MaterialApp.router(
-      title: 'Omar Wica Yudi - Portfolio',
+      title: 'Mas Fiqi (Moh. Rafiqi Wahyudi) • Software Engineer',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
