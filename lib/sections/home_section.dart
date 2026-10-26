@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../core/constants/app_colors.dart';
 import '../core/models/portfolio_data.dart';
 import '../providers/portfolio_provider.dart';
-import '../widgets/premium_button.dart';
 
 class HomeSection extends StatelessWidget {
   final VoidCallback? onDownloadCvTap;
@@ -23,18 +21,36 @@ class HomeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = context.watch<PortfolioProvider>().profile;
+    final provider = context.watch<PortfolioProvider>();
+    final profile = provider.profile;
+
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 20 : 80,
-        vertical: isMobile ? 36 : 80,
+        horizontal: isMobile ? 16 : 60,
+        vertical: isMobile ? 24 : 40,
       ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1280),
-          child: isMobile
-              ? _buildMobileLayout(context, profile)
-              : _buildDesktopLayout(context, profile),
+          child: Column(
+            children: [
+              // 1. Two-Column Hero Core
+              if (isMobile)
+                _buildMobileLayout(context, profile)
+              else
+                _buildDesktopLayout(context, profile),
+
+              SizedBox(height: isMobile ? 36 : 60),
+
+              // 2. Horizontal Stats Panel (Matching Reference)
+              _buildStatsPanel(context, provider, isMobile),
+
+              const SizedBox(height: 32),
+
+              // 3. Scroll Indicator (Matching Reference)
+              _buildScrollIndicator(),
+            ],
+          ),
         ),
       ),
     );
@@ -45,15 +61,18 @@ class HomeSection extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Left Column: Typography, Bio, CTA Buttons, Tech Badges
         Expanded(
           flex: 6,
           child: Padding(
-            padding: const EdgeInsets.only(right: 60),
+            padding: const EdgeInsets.only(right: 40),
             child: _buildLeftContent(context, true, profile),
           ),
         ),
+
+        // Right Column: Portrait, Aurora Circles, Glow, Floating Glass Cards
         Expanded(
-          flex: 5,
+          flex: 6,
           child: _buildRightContent(context, true, profile),
         ),
       ],
@@ -73,29 +92,41 @@ class HomeSection extends StatelessWidget {
   }
 
   Widget _buildLeftContent(BuildContext context, bool isDesktop, ProfileData profile) {
+    // Split name into first part and highlighted gradient last part (e.g. "Moh. Rafiqi" + " Wahyudi")
+    final nameParts = profile.name.trim().split(' ');
+    String firstName = '';
+    String lastName = '';
+    if (nameParts.length > 1) {
+      firstName = nameParts.sublist(0, nameParts.length - 1).join(' ');
+      lastName = nameParts.last;
+    } else {
+      firstName = profile.name.isNotEmpty ? profile.name : 'Mas';
+      lastName = 'Fiqi';
+    }
+
     return Column(
       crossAxisAlignment: isDesktop ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Available for work indicator badge with Aurora Glow
+        // 1. Availability Badge
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
             color: profile.isAvailable
-                ? const Color(0xFFF0FDF4)
-                : const Color(0xFFFFFBEB),
+                ? const Color(0xFFE8FDF2)
+                : const Color(0xFFFEF3C7),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: profile.isAvailable
-                  ? const Color(0xFFBBF7D0)
+                  ? const Color(0xFF86EFAC)
                   : const Color(0xFFFDE68A),
               width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
                 color: (profile.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B))
-                    .withValues(alpha: 0.12),
-                blurRadius: 12,
+                    .withValues(alpha: 0.15),
+                blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
             ],
@@ -104,20 +135,13 @@ class HomeSection extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 8,
-                height: 8,
+                width: 7,
+                height: 7,
                 decoration: BoxDecoration(
                   color: profile.isAvailable
                       ? const Color(0xFF10B981)
                       : const Color(0xFFF59E0B),
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: (profile.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B))
-                          .withValues(alpha: 0.5),
-                      blurRadius: 6,
-                    ),
-                  ],
                 ),
               ),
               const SizedBox(width: 8),
@@ -129,7 +153,7 @@ class HomeSection extends StatelessWidget {
                   color: profile.isAvailable
                       ? const Color(0xFF166534)
                       : const Color(0xFF92400E),
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -137,83 +161,94 @@ class HomeSection extends StatelessWidget {
           ),
         ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.15),
 
-        const SizedBox(height: 22),
+        const SizedBox(height: 20),
 
-        // Pre-title with Tech Icon
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.auto_awesome, color: AppColors.primary, size: 16),
-            const SizedBox(width: 8),
-            Text(
-              'Halo, Selamat Datang di Portofolio',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: isDesktop ? 16 : 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ],
+        // 2. Pre-title Text
+        Text(
+          'Halo, Selamat Datang di Portofolio',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: isDesktop ? 16 : 14,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF64748B),
+            letterSpacing: 0.2,
+          ),
         ).animate().fadeIn(delay: 100.ms),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
 
-        // Main Title / Name with Rich Gradient Effect
-        ShaderMask(
-          blendMode: BlendMode.srcIn,
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [Color(0xFF0F172A), Color(0xFF312E81), Color(0xFF4F46E5)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(bounds),
-          child: Text(
-            profile.name.isNotEmpty ? profile.name : 'Mas Fiqi',
-            textAlign: isDesktop ? TextAlign.left : TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: isDesktop ? 56 : 36,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -1.2,
-              height: 1.1,
-            ),
+        // 3. Dominant Name Headline with Exact Gradient on Last Name
+        RichText(
+          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: '$firstName ',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: isDesktop ? 48 : 34,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                  letterSpacing: -1.0,
+                  height: 1.15,
+                ),
+              ),
+              WidgetSpan(
+                child: ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6), Color(0xFF3B82F6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ).createShader(bounds),
+                  child: Text(
+                    lastName,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: isDesktop ? 48 : 34,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1.0,
+                      height: 1.15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
-        // Role & Specialization
+        // 4. Role & Specialization
         Text(
           profile.title.isNotEmpty
               ? profile.title
               : 'Software Engineer  •  AI & IoT Researcher  •  Mobile Specialist',
           textAlign: isDesktop ? TextAlign.left : TextAlign.center,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: isDesktop ? 20 : 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primary,
-            letterSpacing: -0.3,
+            fontSize: isDesktop ? 18 : 15,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF4F46E5),
+            letterSpacing: -0.2,
           ),
         ).animate().fadeIn(delay: 300.ms),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
 
-        // Bio paragraph
+        // 5. Bio Description
         Text(
           profile.bio.isNotEmpty
               ? profile.bio
-              : 'Mengembangkan solusi software berkualitas tinggi dengan fokus pada arsitektur scalable, pengalaman pengguna yang intuitif, serta integrasi teknologi modern.',
+              : 'Saya membangun pengalaman digital yang indah, cerdas, dan berdampak dengan teknologi Flutter, Machine Learning, dan IoT.',
           textAlign: isDesktop ? TextAlign.left : TextAlign.center,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: isDesktop ? 16 : 14,
+            fontSize: isDesktop ? 15 : 13.5,
             fontWeight: FontWeight.w400,
-            color: AppColors.textSecondary,
+            color: const Color(0xFF64748B),
             height: 1.6,
           ),
         ).animate().fadeIn(delay: 400.ms),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
-        // Location & Email Badges
+        // 6. Meta Tags: Location, Email, Experience
         Wrap(
           spacing: 12,
           runSpacing: 10,
@@ -223,57 +258,113 @@ class HomeSection extends StatelessWidget {
               _buildMetaTag(Icons.location_on_outlined, profile.location),
             if (profile.email.isNotEmpty)
               _buildMetaTag(Icons.mail_outline_rounded, profile.email),
-            if (profile.experience.isNotEmpty)
-              _buildMetaTag(Icons.workspace_premium_outlined, '${profile.experience}+ Tahun Pengalaman'),
           ],
         ).animate().fadeIn(delay: 500.ms),
 
-        const SizedBox(height: 34),
+        const SizedBox(height: 10),
 
-        // Action Buttons with Aurora Depth
+        // Secondary meta row (Experience)
+        if (profile.experience.isNotEmpty)
+          _buildMetaTag(Icons.workspace_premium_outlined, '${profile.experience}++ Tahun Pengalaman')
+              .animate().fadeIn(delay: 550.ms),
+
+        const SizedBox(height: 28),
+
+        // 7. CTA Buttons (Unduh CV, Lihat Portofolio, Hubungi Saya)
         Wrap(
           spacing: 14,
           runSpacing: 12,
           alignment: isDesktop ? WrapAlignment.start : WrapAlignment.center,
           children: [
-            PremiumButton(
-              text: 'Unduh CV / Resume',
-              icon: Icons.download_rounded,
-              isPrimary: true,
-              width: 195,
+            // Unduh CV / Resume (Filled Purple Gradient)
+            ElevatedButton.icon(
               onPressed: onDownloadCvTap ?? () {},
+              icon: const Icon(Icons.download_rounded, color: Colors.white, size: 18),
+              label: Text(
+                'Unduh CV / Resume',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 14),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4F46E5),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shadowColor: const Color(0xFF4F46E5).withValues(alpha: 0.35),
+              ),
             ),
-            PremiumButton(
-              text: 'Lihat Portofolio',
-              icon: Icons.folder_open_rounded,
-              isPrimary: false,
-              width: 175,
+
+            // Lihat Portofolio (Outlined White)
+            OutlinedButton.icon(
               onPressed: onViewPortfolioTap ?? () {},
+              icon: const Icon(Icons.folder_open_rounded, color: Color(0xFF0F172A), size: 18),
+              label: Text(
+                'Lihat Portofolio',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            PremiumButton(
-              text: 'Hubungi Saya',
-              icon: Icons.chat_bubble_outline_rounded,
-              isPrimary: false,
-              width: 165,
+
+            // Hubungi Saya (Outlined White)
+            OutlinedButton.icon(
               onPressed: onContactTap ?? () {},
+              icon: const Icon(Icons.send_rounded, color: Color(0xFF0F172A), size: 16),
+              label: Text(
+                'Hubungi Saya',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ],
         ).animate().fadeIn(delay: 600.ms),
 
-        const SizedBox(height: 36),
+        const SizedBox(height: 32),
 
-        // Technology pills with Hover State
+        // 8. Tech Badges Section Label
+        Align(
+          alignment: isDesktop ? Alignment.centerLeft : Alignment.center,
+          child: Text(
+            'Teknologi yang saya gunakan',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF64748B),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Technology Badges (Flutter, Dart, Python, Machine Learning, IoT, Firebase)
         Wrap(
           spacing: 8,
           runSpacing: 8,
           alignment: isDesktop ? WrapAlignment.start : WrapAlignment.center,
-          children: [
-            _TechChip(label: 'Flutter', icon: Icons.phone_android_rounded),
-            _TechChip(label: 'Dart', icon: Icons.code_rounded),
-            _TechChip(label: 'Python', icon: Icons.terminal_rounded),
-            _TechChip(label: 'Machine Learning', icon: Icons.psychology_rounded),
-            _TechChip(label: 'IoT System', icon: Icons.memory_rounded),
-            _TechChip(label: 'Firebase Cloud', icon: Icons.cloud_done_rounded),
+          children: const [
+            _TechPill(label: 'Flutter', icon: Icons.flutter_dash_rounded, iconColor: Color(0xFF02569B)),
+            _TechPill(label: 'Dart', icon: Icons.code_rounded, iconColor: Color(0xFF0175C2)),
+            _TechPill(label: 'Python', icon: Icons.terminal_rounded, iconColor: Color(0xFF3776AB)),
+            _TechPill(label: 'Machine Learning', icon: Icons.psychology_rounded, iconColor: Color(0xFF8B5CF6)),
+            _TechPill(label: 'IoT System', icon: Icons.memory_rounded, iconColor: Color(0xFF0284C7)),
+            _TechPill(label: 'Firebase', icon: Icons.local_fire_department_rounded, iconColor: Color(0xFFF5820D)),
           ],
         ).animate().fadeIn(delay: 700.ms),
       ],
@@ -281,214 +372,228 @@ class HomeSection extends StatelessWidget {
   }
 
   Widget _buildRightContent(BuildContext context, bool isDesktop, ProfileData profile) {
-    final imageWidth = isDesktop ? 390.0 : 260.0;
-    final imageHeight = isDesktop ? 470.0 : 310.0;
+    final photoWidth = isDesktop ? 320.0 : 240.0;
+    final photoHeight = isDesktop ? 440.0 : 320.0;
 
     return Center(
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.center,
-        children: [
-          // Aurora Glow Backdrop behind portrait
-          Positioned(
-            top: -20,
-            left: -20,
-            right: -20,
-            bottom: -20,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                gradient: const RadialGradient(
-                  colors: [
-                    Color(0x33C7D2FE),
-                    Color(0x22DDD6FE),
-                    Colors.transparent,
-                  ],
-                  stops: [0.0, 0.5, 1.0],
+      child: SizedBox(
+        width: isDesktop ? 560 : 340,
+        height: isDesktop ? 540 : 420,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            // 1. Abstract Background Layer: Large Aurora Circle Gradient
+            Positioned(
+              top: isDesktop ? 30 : 20,
+              right: isDesktop ? 30 : 10,
+              child: Container(
+                width: isDesktop ? 380 : 280,
+                height: isDesktop ? 380 : 280,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0x55C7D2FE), // Soft periwinkle
+                      Color(0x44DDD6FE), // Soft lavender
+                      Color(0x22BAE6FD), // Soft sky blue
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Background soft frame decoration with gradient border
-          Container(
-            width: imageWidth,
-            height: imageHeight,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(26),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.08),
-                  blurRadius: 40,
-                  offset: const Offset(0, 16),
+            // 2. Abstract Geometric Lines & Technology Nodes (Tech Constellation)
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _HeroConstellationPainter(),
+              ),
+            ),
+
+            // 3. Ambient Blue/Purple Laptop / Tech Screen Graphic in Background Left
+            Positioned(
+              left: isDesktop ? 10 : -10,
+              bottom: isDesktop ? 70 : 40,
+              child: Opacity(
+                opacity: 0.75,
+                child: Container(
+                  width: isDesktop ? 150 : 100,
+                  height: isDesktop ? 130 : 90,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF38BDF8)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.terminal_rounded,
+                      color: Colors.white.withValues(alpha: 0.8),
+                      size: isDesktop ? 48 : 32,
+                    ),
+                  ),
                 ),
-                BoxShadow(
-                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.06),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+              ),
+            ),
+
+            // 4. Main Portrait Photo (Original Asset from Project)
+            Positioned(
+              bottom: 0,
+              child: Container(
+                width: photoWidth,
+                height: photoHeight,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0F172A).withValues(alpha: 0.12),
+                      blurRadius: 40,
+                      offset: const Offset(0, 16),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                      blurRadius: 50,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
-              ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: profile.photoUrl.isNotEmpty
+                      ? (profile.photoUrl.startsWith('http')
+                          ? Image.network(
+                              profile.photoUrl,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
+                              errorBuilder: (_, __, ___) => _buildPlaceholderPhoto(),
+                            )
+                          : Image.asset(
+                              profile.photoUrl,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
+                              errorBuilder: (_, __, ___) => _buildPlaceholderPhoto(),
+                            ))
+                      : _buildPlaceholderPhoto(),
+                ),
+              ),
             ),
-          ),
 
-          // Main Profile Portrait
-          Container(
-            width: imageWidth,
-            height: imageHeight,
-            margin: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: AppColors.backgroundAlt,
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: profile.photoUrl.isNotEmpty
-                  ? (profile.photoUrl.startsWith('http')
-                      ? Image.network(
-                          profile.photoUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholderAvatar(isDesktop),
-                        )
-                      : Image.asset(
-                          profile.photoUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholderAvatar(isDesktop),
-                        ))
-                  : _buildPlaceholderAvatar(isDesktop),
-            ),
-          ),
+            // ── Floating Glass Cards Matching Reference ──
 
-          // Aurora Glass Floating Metric Card 1 (Bottom Left)
-          Positioned(
-            bottom: isDesktop ? -20 : -15,
-            left: isDesktop ? -30 : -10,
-            child: _buildGlassMetricCard(
-              title: 'Pengalaman Nyata',
-              value: '${profile.experience.isNotEmpty ? profile.experience : '3'}+ Tahun',
-              icon: Icons.trending_up_rounded,
-              accentColor: AppColors.primary,
+            // Top-Left Floating Card: Clean Code / Better Solution
+            Positioned(
+              top: isDesktop ? 30 : 10,
+              left: isDesktop ? -20 : -10,
+              child: const _FloatingGlassCard(
+                icon: Icons.code_rounded,
+                iconColor: Color(0xFF6366F1),
+                title: 'Clean Code',
+                subtitle: 'Better Solution  ↗',
+              ),
             ),
-          ),
 
-          // Aurora Glass Floating Metric Card 2 (Top Right)
-          Positioned(
-            top: isDesktop ? -20 : -15,
-            right: isDesktop ? -30 : -10,
-            child: _buildGlassMetricCard(
-              title: 'Solusi & Riset',
-              value: '100% Terverifikasi',
-              icon: Icons.verified_rounded,
-              accentColor: const Color(0xFF10B981),
+            // Mid-Left Floating Card: Pengalaman / 3++ Tahun
+            Positioned(
+              top: isDesktop ? 160 : 130,
+              left: isDesktop ? -30 : -20,
+              child: _FloatingGlassCard(
+                icon: Icons.layers_rounded,
+                iconColor: const Color(0xFF6366F1),
+                title: 'Pengalaman',
+                subtitle: '${profile.experience.isNotEmpty ? profile.experience : '3'}++ Tahun',
+                extraWidget: Row(
+                  children: const [
+                    Icon(Icons.bar_chart_rounded, color: Color(0xFF8B5CF6), size: 16),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+
+            // Top-Right Floating Card: Solusi & Riset / 100% Verified
+            Positioned(
+              top: isDesktop ? 40 : 20,
+              right: isDesktop ? -40 : -15,
+              child: const _FloatingGlassCard(
+                icon: Icons.psychology_rounded,
+                iconColor: Color(0xFF8B5CF6),
+                title: 'Solusi & Riset',
+                subtitle: '100% Verified',
+              ),
+            ),
+
+            // Mid-Right Floating Card: Idea to Impact / Digital Solution
+            Positioned(
+              top: isDesktop ? 170 : 140,
+              right: isDesktop ? -30 : -10,
+              child: const _FloatingGlassCard(
+                icon: Icons.lightbulb_outline_rounded,
+                iconColor: Color(0xFF0F172A),
+                title: 'Idea to Impact',
+                subtitle: 'Digital Solution',
+              ),
+            ),
+
+            // Lower-Right Floating Card: Always Learning / Better Tomorrow
+            Positioned(
+              bottom: isDesktop ? 60 : 30,
+              right: isDesktop ? -35 : -15,
+              child: const _FloatingGlassCard(
+                icon: Icons.rocket_launch_rounded,
+                iconColor: Color(0xFF6366F1),
+                title: 'Always Learning',
+                subtitle: 'Better Tomorrow',
+              ),
+            ),
+          ],
+        ),
       ),
     ).animate().fadeIn(duration: 700.ms).scale(begin: const Offset(0.96, 0.96));
   }
 
-  Widget _buildPlaceholderAvatar(bool isDesktop) {
+  Widget _buildPlaceholderPhoto() {
     return Container(
       color: const Color(0xFFEEF2F6),
-      child: Center(
-        child: Icon(
-          Icons.person_rounded,
-          size: isDesktop ? 100 : 70,
-          color: AppColors.textMuted,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlassMetricCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color accentColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xF7FFFFFF), // Aurora semi-glass
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: accentColor.withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: accentColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.textSecondary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                value,
-                style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ],
+      child: const Center(
+        child: Icon(Icons.person_rounded, size: 90, color: Color(0xFF94A3B8)),
       ),
     );
   }
 
   Widget _buildMetaTag(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border, width: 1),
-        boxShadow: [
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        boxShadow: const [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.02),
+            color: Color(0x080F172A),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppColors.primary, size: 15),
+          Icon(icon, color: const Color(0xFF64748B), size: 15),
           const SizedBox(width: 8),
           Text(
             text,
             style: GoogleFonts.plusJakartaSans(
-              color: AppColors.textPrimary,
+              color: const Color(0xFF0F172A),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -497,19 +602,281 @@ class HomeSection extends StatelessWidget {
       ),
     );
   }
+
+  // ── Horizontal Stats Panel (Matching Reference) ──
+  Widget _buildStatsPanel(BuildContext context, PortfolioProvider provider, bool isMobile) {
+    // Dynamic counts from real database data
+    final projectsCount = provider.projects.length;
+    final certificatesCount = provider.certificates.length;
+    final researchCount = provider.research.length;
+    final experienceCount = provider.experience.length;
+
+    // Formatting with '+' suffix (or fallback to reference default minimums if empty)
+    final projectStr = projectsCount > 0 ? '$projectsCount+' : '20+';
+    final colabStr = experienceCount > 0 ? '$experienceCount+' : '10+';
+    final certStr = certificatesCount > 0 ? '$certificatesCount+' : '15+';
+    final researchStr = researchCount > 0 ? '$researchCount+' : '5+';
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 18 : 36,
+        vertical: isMobile ? 22 : 24,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xF7FFFFFF), // White semi-translucent glass
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 28,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: const Color(0xFF6366F1).withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: isMobile
+          ? Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(child: _buildStatItem(Icons.folder_outlined, projectStr, 'Proyek Selesai', 'Website, Mobile App, IoT')),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildStatItem(Icons.groups_outlined, colabStr, 'Kolaborasi', 'Tim & Organisasi')),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Divider(color: Color(0xFFE2E8F0)),
+                ),
+                Row(
+                  children: [
+                    Expanded(child: _buildStatItem(Icons.workspace_premium_outlined, certStr, 'Sertifikat', 'Pelatihan & Kompetensi')),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildStatItem(Icons.article_outlined, researchStr, 'Riset / Publikasi', 'Artikel & Karya Ilmiah')),
+                  ],
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: _buildStatItem(Icons.folder_outlined, projectStr, 'Proyek Selesai', 'Website, Mobile App, IoT')),
+                _buildStatDivider(),
+                Expanded(child: _buildStatItem(Icons.groups_outlined, colabStr, 'Kolaborasi', 'Tim & Organisasi')),
+                _buildStatDivider(),
+                Expanded(child: _buildStatItem(Icons.workspace_premium_outlined, certStr, 'Sertifikat', 'Pelatihan & Kompetensi')),
+                _buildStatDivider(),
+                Expanded(child: _buildStatItem(Icons.article_outlined, researchStr, 'Riset / Publikasi', 'Artikel & Karya Ilmiah')),
+              ],
+            ),
+    ).animate().fadeIn(delay: 750.ms).slideY(begin: 0.1);
+  }
+
+  Widget _buildStatItem(IconData icon, String count, String title, String subtitle) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Lavender circle with purple icon
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEF2FF),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFC7D2FE), width: 1.0),
+          ),
+          child: Icon(icon, color: const Color(0xFF4F46E5), size: 22),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              count,
+              style: GoogleFonts.plusJakartaSans(
+                color: const Color(0xFF0F172A),
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+            Text(
+              title,
+              style: GoogleFonts.plusJakartaSans(
+                color: const Color(0xFF0F172A),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: GoogleFonts.plusJakartaSans(
+                color: const Color(0xFF64748B),
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatDivider() {
+    return Container(
+      width: 1,
+      height: 48,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      color: const Color(0xFFE2E8F0),
+    );
+  }
+
+  Widget _buildScrollIndicator() {
+    return Column(
+      children: [
+        Container(
+          width: 20,
+          height: 32,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF94A3B8), width: 1.5),
+          ),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              margin: const EdgeInsets.only(top: 4),
+              width: 4,
+              height: 8,
+              decoration: BoxDecoration(
+                color: const Color(0xFF64748B),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Scroll untuk menjelajah',
+          style: GoogleFonts.plusJakartaSans(
+            color: const Color(0xFF64748B),
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF64748B), size: 16),
+      ],
+    );
+  }
 }
 
-class _TechChip extends StatefulWidget {
-  final String label;
+// ── Floating Glass Card Component ──
+class _FloatingGlassCard extends StatelessWidget {
   final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final Widget? extraWidget;
 
-  const _TechChip({required this.label, required this.icon});
+  const _FloatingGlassCard({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    this.extraWidget,
+  });
 
   @override
-  State<_TechChip> createState() => _TechChipState();
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xF5FFFFFF), // Ultra-clean glassmorphic white
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D0F172A),
+            blurRadius: 18,
+            offset: Offset(0, 6),
+          ),
+          BoxShadow(
+            color: Color(0x086366F1),
+            blurRadius: 12,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: iconColor, size: 16),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF64748B),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF0F172A),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          if (extraWidget != null) ...[
+            const SizedBox(width: 8),
+            extraWidget!,
+          ],
+        ],
+      ),
+    );
+  }
 }
 
-class _TechChipState extends State<_TechChip> {
+// ── Technology Pill Badge Component ──
+class _TechPill extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final Color iconColor;
+
+  const _TechPill({
+    required this.label,
+    required this.icon,
+    required this.iconColor,
+  });
+
+  @override
+  State<_TechPill> createState() => _TechPillState();
+}
+
+class _TechPillState extends State<_TechPill> {
   bool _isHovered = false;
 
   @override
@@ -519,37 +886,31 @@ class _TechChipState extends State<_TechChip> {
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: _isHovered ? const Color(0xFFEEF2FF) : AppColors.surface,
-          borderRadius: BorderRadius.circular(10),
+          color: _isHovered ? const Color(0xFFEEF2FF) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: _isHovered ? AppColors.primary : AppColors.border,
-            width: 1,
+            color: _isHovered ? const Color(0xFF6366F1) : const Color(0xFFE2E8F0),
+            width: 1.0,
           ),
-          boxShadow: _isHovered
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.14),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  )
-                ]
-              : null,
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x080F172A),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              widget.icon,
-              size: 13,
-              color: _isHovered ? AppColors.primary : AppColors.textSecondary,
-            ),
-            const SizedBox(width: 6),
+            Icon(widget.icon, color: widget.iconColor, size: 16),
+            const SizedBox(width: 8),
             Text(
               widget.label,
               style: GoogleFonts.plusJakartaSans(
-                color: _isHovered ? AppColors.primary : AppColors.textPrimary,
+                color: _isHovered ? const Color(0xFF4F46E5) : const Color(0xFF0F172A),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -559,4 +920,47 @@ class _TechChipState extends State<_TechChip> {
       ),
     );
   }
+}
+
+// ── Custom Painter for Abstract Technology Constellation ──
+class _HeroConstellationPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final linePaint = Paint()
+      ..color = const Color(0xFF818CF8).withValues(alpha: 0.25)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    final dotPaint = Paint()
+      ..color = const Color(0xFF6366F1)
+      ..style = PaintingStyle.fill;
+
+    // Node coordinates relative to size
+    final p1 = Offset(size.width * 0.20, size.height * 0.25);
+    final p2 = Offset(size.width * 0.35, size.height * 0.15);
+    final p3 = Offset(size.width * 0.70, size.height * 0.20);
+    final p4 = Offset(size.width * 0.85, size.height * 0.40);
+    final p5 = Offset(size.width * 0.25, size.height * 0.60);
+
+    // Draw connecting lines
+    canvas.drawLine(p1, p2, linePaint);
+    canvas.drawLine(p2, p3, linePaint);
+    canvas.drawLine(p3, p4, linePaint);
+    canvas.drawLine(p1, p5, linePaint);
+
+    // Draw small node dots
+    for (final p in [p1, p2, p3, p4, p5]) {
+      canvas.drawCircle(p, 2.5, dotPaint);
+      canvas.drawCircle(
+        p,
+        6.0,
+        Paint()
+          ..color = const Color(0xFF6366F1).withValues(alpha: 0.15)
+          ..style = PaintingStyle.fill,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

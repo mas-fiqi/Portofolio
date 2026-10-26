@@ -188,22 +188,25 @@ class _NavItemState extends State<_NavItem> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
             color: widget.isActive
-                ? AppColors.primary.withValues(alpha: 0.08)
-                : (_hovered ? AppColors.backgroundAlt : Colors.transparent),
-            borderRadius: BorderRadius.circular(8),
+                ? const Color(0xFFEEF2FF)
+                : (_hovered ? const Color(0xFFF1F5F9) : Colors.transparent),
+            borderRadius: BorderRadius.circular(16),
+            border: widget.isActive
+                ? Border.all(color: const Color(0xFFC7D2FE), width: 1.0)
+                : null,
           ),
           child: Text(
             widget.label,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
-              fontWeight: widget.isActive ? FontWeight.w600 : FontWeight.w500,
+              fontWeight: widget.isActive ? FontWeight.w700 : FontWeight.w500,
               color: widget.isActive
-                  ? AppColors.primary
-                  : (_hovered ? AppColors.textPrimary : AppColors.textSecondary),
+                  ? const Color(0xFF4F46E5)
+                  : (_hovered ? const Color(0xFF0F172A) : const Color(0xFF64748B)),
             ),
           ),
         ),
