@@ -302,10 +302,36 @@ class _ProfileEditorState extends State<_ProfileEditor> {
   late final _tiktokCtrl = TextEditingController();
   late final _twitterCtrl = TextEditingController();
 
+  // About Page CMS Controllers
+  late final _aboutBadgeCtrl = TextEditingController();
+  late final _aboutHeadlineCtrl = TextEditingController();
+  late final _aboutHeadlineGradientCtrl = TextEditingController();
+  late final _aboutSubheadlineCtrl = TextEditingController();
+  late final _aboutCardTitleCtrl = TextEditingController();
+  late final _aboutBioP1Ctrl = TextEditingController();
+  late final _aboutBioP2Ctrl = TextEditingController();
+  late final _aboutStatusTextCtrl = TextEditingController();
+  late final _miniRoleBadgeCtrl = TextEditingController();
+  late final _profileSkillTagsCtrl = TextEditingController();
+  bool _showAvailabilityBadge = true;
+
+  // Commitment Items controllers
+  late final _c1TitleCtrl = TextEditingController();
+  late final _c1DescCtrl = TextEditingController();
+  late final _c2TitleCtrl = TextEditingController();
+  late final _c2DescCtrl = TextEditingController();
+  late final _c3TitleCtrl = TextEditingController();
+  late final _c3DescCtrl = TextEditingController();
+
   @override
   void dispose() {
-    for (final c in [_nameCtrl, _titleCtrl, _bioCtrl, _locationCtrl,
-        _emailCtrl, _expCtrl, _photoUrlCtrl, _phoneCtrl, _githubCtrl, _linkedinCtrl, _igCtrl, _waCtrl, _tiktokCtrl, _twitterCtrl]) {
+    for (final c in [
+      _nameCtrl, _titleCtrl, _bioCtrl, _locationCtrl,
+      _emailCtrl, _expCtrl, _photoUrlCtrl, _phoneCtrl, _githubCtrl, _linkedinCtrl, _igCtrl, _waCtrl, _tiktokCtrl, _twitterCtrl,
+      _aboutBadgeCtrl, _aboutHeadlineCtrl, _aboutHeadlineGradientCtrl, _aboutSubheadlineCtrl, _aboutCardTitleCtrl,
+      _aboutBioP1Ctrl, _aboutBioP2Ctrl, _aboutStatusTextCtrl, _miniRoleBadgeCtrl, _profileSkillTagsCtrl,
+      _c1TitleCtrl, _c1DescCtrl, _c2TitleCtrl, _c2DescCtrl, _c3TitleCtrl, _c3DescCtrl,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -326,6 +352,28 @@ class _ProfileEditorState extends State<_ProfileEditor> {
     _waCtrl.text = d.whatsapp;
     _tiktokCtrl.text = d.tiktokUrl;
     _twitterCtrl.text = d.twitterUrl;
+
+    // About Section
+    _aboutBadgeCtrl.text = d.aboutBadge;
+    _aboutHeadlineCtrl.text = d.aboutHeadline;
+    _aboutHeadlineGradientCtrl.text = d.aboutHeadlineGradient;
+    _aboutSubheadlineCtrl.text = d.aboutSubheadline;
+    _aboutCardTitleCtrl.text = d.aboutCardTitle;
+    _aboutBioP1Ctrl.text = d.aboutBioParagraph1;
+    _aboutBioP2Ctrl.text = d.aboutBioParagraph2;
+    _aboutStatusTextCtrl.text = d.aboutStatusText;
+    _miniRoleBadgeCtrl.text = d.miniRoleBadge;
+    _profileSkillTagsCtrl.text = d.profileSkillTags.join(', ');
+    _showAvailabilityBadge = d.showAvailabilityBadge;
+
+    if (d.commitments.isNotEmpty) {
+      _c1TitleCtrl.text = d.commitments.isNotEmpty ? d.commitments[0].title : '';
+      _c1DescCtrl.text = d.commitments.isNotEmpty ? d.commitments[0].description : '';
+      _c2TitleCtrl.text = d.commitments.length > 1 ? d.commitments[1].title : '';
+      _c2DescCtrl.text = d.commitments.length > 1 ? d.commitments[1].description : '';
+      _c3TitleCtrl.text = d.commitments.length > 2 ? d.commitments[2].title : '';
+      _c3DescCtrl.text = d.commitments.length > 2 ? d.commitments[2].description : '';
+    }
   }
 
   Future<void> _uploadPhoto() async {
@@ -397,12 +445,45 @@ class _ProfileEditorState extends State<_ProfileEditor> {
         whatsapp: _waCtrl.text.trim(),
         tiktokUrl: _tiktokCtrl.text.trim(),
         twitterUrl: _twitterCtrl.text.trim(),
+        // About Section CMS Fields
+        aboutBadge: _aboutBadgeCtrl.text.trim(),
+        aboutHeadline: _aboutHeadlineCtrl.text.trim(),
+        aboutHeadlineGradient: _aboutHeadlineGradientCtrl.text.trim(),
+        aboutSubheadline: _aboutSubheadlineCtrl.text.trim(),
+        aboutCardTitle: _aboutCardTitleCtrl.text.trim(),
+        aboutBioParagraph1: _aboutBioP1Ctrl.text.trim(),
+        aboutBioParagraph2: _aboutBioP2Ctrl.text.trim(),
+        aboutStatusText: _aboutStatusTextCtrl.text.trim(),
+        showAvailabilityBadge: _showAvailabilityBadge,
+        miniRoleBadge: _miniRoleBadgeCtrl.text.trim(),
+        profileSkillTags: _profileSkillTagsCtrl.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList(),
+        commitments: [
+          CommitmentItem(
+            iconName: 'rocket_launch_rounded',
+            title: _c1TitleCtrl.text.trim().isNotEmpty ? _c1TitleCtrl.text.trim() : 'Inovatif',
+            description: _c1DescCtrl.text.trim().isNotEmpty ? _c1DescCtrl.text.trim() : 'Menciptakan solusi yang berpusat pada pengguna dan bernilai nyata.',
+          ),
+          CommitmentItem(
+            iconName: 'code_rounded',
+            title: _c2TitleCtrl.text.trim().isNotEmpty ? _c2TitleCtrl.text.trim() : 'Disiplin & Terstruktur',
+            description: _c2DescCtrl.text.trim().isNotEmpty ? _c2DescCtrl.text.trim() : 'Menulis kode yang bersih, terstruktur, dan mudah dikembangkan.',
+          ),
+          CommitmentItem(
+            iconName: 'groups_rounded',
+            title: _c3TitleCtrl.text.trim().isNotEmpty ? _c3TitleCtrl.text.trim() : 'Kolaboratif',
+            description: _c3DescCtrl.text.trim().isNotEmpty ? _c3DescCtrl.text.trim() : 'Terbuka terhadap ide baru dan senang bekerja dalam tim lintas disiplin.',
+          ),
+        ],
       );
       await _svc.saveProfile(updated);
       setState(() {
         _data = updated;
       });
-      if (mounted) _showSnack('Profil berhasil disimpan ke database!');
+      if (mounted) _showSnack('Profil & Konten Tentang Saya berhasil disimpan ke database!');
     } catch (e) {
       if (mounted) {
         _showSnack('Gagal menyimpan profil: $e\n(Pastikan Firestore Rules mengizinkan write untuk akun yang login)', isError: true);
@@ -528,6 +609,50 @@ class _ProfileEditorState extends State<_ProfileEditor> {
             _field('Pengalaman (cth: 3+)', _expCtrl, Icons.trending_up),
           ]),
           const SizedBox(height: 20),
+          // ── CMS HALAMAN TENTANG SAYA ──
+          _buildSection('CMS Halaman Tentang Saya (About Me)', [
+            _field('Badge Section (cth: TENTANG SAYA)', _aboutBadgeCtrl, Icons.label_outline_rounded),
+            _field('Judul Utama (Bagian Hitam)', _aboutHeadlineCtrl, Icons.format_size_rounded),
+            _field('Judul Utama (Bagian Gradient Ungu/Biru)', _aboutHeadlineGradientCtrl, Icons.gradient_rounded),
+            _field('Sub-deskripsi Di Bawah Judul', _aboutSubheadlineCtrl, Icons.text_snippet_outlined, maxLines: 2),
+            const SizedBox(height: 12),
+            const Divider(color: Color(0xFFE2E8F0)),
+            const SizedBox(height: 12),
+            _field('Judul Card Biografi (cth: Tentang Saya)', _aboutCardTitleCtrl, Icons.badge_outlined),
+            _field('Biografi Paragraf 1', _aboutBioP1Ctrl, Icons.notes_rounded, maxLines: 3),
+            _field('Biografi Paragraf 2', _aboutBioP2Ctrl, Icons.notes_rounded, maxLines: 3),
+            _field('Teks Status Ketersediaan', _aboutStatusTextCtrl, Icons.check_circle_outline_rounded),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text('Tampilkan Badge Status Ketersediaan', style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+              value: _showAvailabilityBadge,
+              onChanged: (v) => setState(() => _showAvailabilityBadge = v),
+              activeThumbColor: const Color(0xFF10B981),
+            ),
+            const SizedBox(height: 12),
+            const Divider(color: Color(0xFFE2E8F0)),
+            const SizedBox(height: 12),
+            _field('Mini Badge Pada Foto (cth: Flutter Developer)', _miniRoleBadgeCtrl, Icons.bolt_rounded),
+            _field('Skill Chips Profile Card (Pisahkan dengan koma)', _profileSkillTagsCtrl, Icons.tag_rounded),
+          ]),
+          const SizedBox(height: 20),
+          _buildSection('CMS Komitmen & Pendekatan Kerja', [
+            Text('Item 1: Inovatif', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primary)),
+            const SizedBox(height: 6),
+            _field('Judul Item 1', _c1TitleCtrl, Icons.rocket_launch_rounded),
+            _field('Deskripsi Item 1', _c1DescCtrl, Icons.description_outlined, maxLines: 2),
+            const SizedBox(height: 10),
+            Text('Item 2: Disiplin & Terstruktur', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primary)),
+            const SizedBox(height: 6),
+            _field('Judul Item 2', _c2TitleCtrl, Icons.code_rounded),
+            _field('Deskripsi Item 2', _c2DescCtrl, Icons.description_outlined, maxLines: 2),
+            const SizedBox(height: 10),
+            Text('Item 3: Kolaboratif', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primary)),
+            const SizedBox(height: 6),
+            _field('Judul Item 3', _c3TitleCtrl, Icons.groups_rounded),
+            _field('Deskripsi Item 3', _c3DescCtrl, Icons.description_outlined, maxLines: 2),
+          ]),
+          const SizedBox(height: 20),
           _buildSection('Sosial Media & Tautan', [
             _field('WhatsApp (Nomor atau Link Langsung)', _waCtrl, Icons.chat),
             _field('Instagram URL', _igCtrl, Icons.camera_alt_outlined),
@@ -545,7 +670,7 @@ class _ProfileEditorState extends State<_ProfileEditor> {
                   ? const SizedBox(width: 16, height: 16,
                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                   : const Icon(Icons.save_outlined),
-              label: Text(_saving ? 'Menyimpan...' : 'Simpan Profil'),
+              label: Text(_saving ? 'Menyimpan...' : 'Simpan Seluruh Perubahan'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4C2B9A),
                 foregroundColor: Colors.white,

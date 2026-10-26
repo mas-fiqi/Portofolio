@@ -49,6 +49,20 @@ class ProfileData {
   final String twitterUrl;
   final bool isAvailable;
 
+  // Dynamic About Page CMS Fields
+  final String aboutBadge;
+  final String aboutHeadline;
+  final String aboutHeadlineGradient;
+  final String aboutSubheadline;
+  final String aboutCardTitle;
+  final String aboutBioParagraph1;
+  final String aboutBioParagraph2;
+  final String aboutStatusText;
+  final bool showAvailabilityBadge;
+  final String miniRoleBadge;
+  final List<String> profileSkillTags;
+  final List<CommitmentItem> commitments;
+
   const ProfileData({
     required this.name,
     required this.title,
@@ -65,6 +79,34 @@ class ProfileData {
     this.tiktokUrl = '',
     this.twitterUrl = '',
     required this.isAvailable,
+    this.aboutBadge = 'TENTANG SAYA',
+    this.aboutHeadline = 'Menciptakan Solusi Digital yang',
+    this.aboutHeadlineGradient = 'Elegan dan Skalabel',
+    this.aboutSubheadline = 'Saya membangun pengalaman digital yang indah, cerdas, dan berdampak dengan teknologi Flutter, Machine Learning, dan IoT.',
+    this.aboutCardTitle = 'Tentang Saya',
+    this.aboutBioParagraph1 = 'Saya adalah seorang Software Engineer yang berfokus pada pengembangan aplikasi berbasis Flutter, serta memiliki minat pada bidang Machine Learning dan Internet of Things (IoT). Saya senang membangun solusi digital yang tidak hanya fungsional, tetapi juga memiliki desain yang elegan, scalable, dan memberikan dampak nyata.',
+    this.aboutBioParagraph2 = 'Dengan latar belakang pendidikan dan pengalaman di bidang teknologi, saya terus mengembangkan kemampuan untuk menciptakan aplikasi dan sistem yang dapat membantu memecahkan masalah nyata di berbagai bidang.',
+    this.aboutStatusText = 'Tersedia untuk Pekerjaan / Kolaborasi',
+    this.showAvailabilityBadge = true,
+    this.miniRoleBadge = 'Flutter Developer',
+    this.profileSkillTags = const ['Flutter', 'Machine Learning', 'IoT System', 'Cloud & Firebase'],
+    this.commitments = const [
+      CommitmentItem(
+        iconName: 'rocket_launch_rounded',
+        title: 'Inovatif',
+        description: 'Menciptakan solusi yang berpusat pada pengguna dan bernilai nyata.',
+      ),
+      CommitmentItem(
+        iconName: 'code_rounded',
+        title: 'Disiplin & Terstruktur',
+        description: 'Menulis kode yang bersih, terstruktur, dan mudah dikembangkan.',
+      ),
+      CommitmentItem(
+        iconName: 'groups_rounded',
+        title: 'Kolaboratif',
+        description: 'Terbuka terhadap ide baru dan senang bekerja dalam tim lintas disiplin.',
+      ),
+    ],
   });
 
   factory ProfileData.fromMap(Map<String, dynamic> map) => ProfileData(
@@ -83,6 +125,40 @@ class ProfileData {
         tiktokUrl: map['tiktokUrl'] ?? '',
         twitterUrl: map['twitterUrl'] ?? '',
         isAvailable: map['isAvailable'] ?? true,
+        aboutBadge: map['aboutBadge'] ?? 'TENTANG SAYA',
+        aboutHeadline: map['aboutHeadline'] ?? 'Menciptakan Solusi Digital yang',
+        aboutHeadlineGradient: map['aboutHeadlineGradient'] ?? 'Elegan dan Skalabel',
+        aboutSubheadline: map['aboutSubheadline'] ?? 'Saya membangun pengalaman digital yang indah, cerdas, dan berdampak dengan teknologi Flutter, Machine Learning, dan IoT.',
+        aboutCardTitle: map['aboutCardTitle'] ?? 'Tentang Saya',
+        aboutBioParagraph1: map['aboutBioParagraph1'] ?? 'Saya adalah seorang Software Engineer yang berfokus pada pengembangan aplikasi berbasis Flutter, serta memiliki minat pada bidang Machine Learning dan Internet of Things (IoT). Saya senang membangun solusi digital yang tidak hanya fungsional, tetapi juga memiliki desain yang elegan, scalable, dan memberikan dampak nyata.',
+        aboutBioParagraph2: map['aboutBioParagraph2'] ?? 'Dengan latar belakang pendidikan dan pengalaman di bidang teknologi, saya terus mengembangkan kemampuan untuk menciptakan aplikasi dan sistem yang dapat membantu memecahkan masalah nyata di berbagai bidang.',
+        aboutStatusText: map['aboutStatusText'] ?? 'Tersedia untuk Pekerjaan / Kolaborasi',
+        showAvailabilityBadge: map['showAvailabilityBadge'] ?? true,
+        miniRoleBadge: map['miniRoleBadge'] ?? 'Flutter Developer',
+        profileSkillTags: map['profileSkillTags'] != null
+            ? List<String>.from(map['profileSkillTags'])
+            : const ['Flutter', 'Machine Learning', 'IoT System', 'Cloud & Firebase'],
+        commitments: map['commitments'] != null
+            ? (map['commitments'] as List)
+                .map((x) => CommitmentItem.fromMap(Map<String, dynamic>.from(x)))
+                .toList()
+            : const [
+                CommitmentItem(
+                  iconName: 'rocket_launch_rounded',
+                  title: 'Inovatif',
+                  description: 'Menciptakan solusi yang berpusat pada pengguna dan bernilai nyata.',
+                ),
+                CommitmentItem(
+                  iconName: 'code_rounded',
+                  title: 'Disiplin & Terstruktur',
+                  description: 'Menulis kode yang bersih, terstruktur, dan mudah dikembangkan.',
+                ),
+                CommitmentItem(
+                  iconName: 'groups_rounded',
+                  title: 'Kolaboratif',
+                  description: 'Terbuka terhadap ide baru dan senang bekerja dalam tim lintas disiplin.',
+                ),
+              ],
       );
 
   Map<String, dynamic> toMap() => {
@@ -101,6 +177,18 @@ class ProfileData {
         'tiktokUrl': tiktokUrl,
         'twitterUrl': twitterUrl,
         'isAvailable': isAvailable,
+        'aboutBadge': aboutBadge,
+        'aboutHeadline': aboutHeadline,
+        'aboutHeadlineGradient': aboutHeadlineGradient,
+        'aboutSubheadline': aboutSubheadline,
+        'aboutCardTitle': aboutCardTitle,
+        'aboutBioParagraph1': aboutBioParagraph1,
+        'aboutBioParagraph2': aboutBioParagraph2,
+        'aboutStatusText': aboutStatusText,
+        'showAvailabilityBadge': showAvailabilityBadge,
+        'miniRoleBadge': miniRoleBadge,
+        'profileSkillTags': profileSkillTags,
+        'commitments': commitments.map((x) => x.toMap()).toList(),
       };
 
   ProfileData copyWith({
@@ -110,6 +198,18 @@ class ProfileData {
     String? githubUrl, String? linkedinUrl, String? instagramUrl,
     String? tiktokUrl, String? twitterUrl,
     bool? isAvailable,
+    String? aboutBadge,
+    String? aboutHeadline,
+    String? aboutHeadlineGradient,
+    String? aboutSubheadline,
+    String? aboutCardTitle,
+    String? aboutBioParagraph1,
+    String? aboutBioParagraph2,
+    String? aboutStatusText,
+    bool? showAvailabilityBadge,
+    String? miniRoleBadge,
+    List<String>? profileSkillTags,
+    List<CommitmentItem>? commitments,
   }) => ProfileData(
     name: name ?? this.name, title: title ?? this.title,
     bio: bio ?? this.bio, location: location ?? this.location,
@@ -123,6 +223,18 @@ class ProfileData {
     tiktokUrl: tiktokUrl ?? this.tiktokUrl,
     twitterUrl: twitterUrl ?? this.twitterUrl,
     isAvailable: isAvailable ?? this.isAvailable,
+    aboutBadge: aboutBadge ?? this.aboutBadge,
+    aboutHeadline: aboutHeadline ?? this.aboutHeadline,
+    aboutHeadlineGradient: aboutHeadlineGradient ?? this.aboutHeadlineGradient,
+    aboutSubheadline: aboutSubheadline ?? this.aboutSubheadline,
+    aboutCardTitle: aboutCardTitle ?? this.aboutCardTitle,
+    aboutBioParagraph1: aboutBioParagraph1 ?? this.aboutBioParagraph1,
+    aboutBioParagraph2: aboutBioParagraph2 ?? this.aboutBioParagraph2,
+    aboutStatusText: aboutStatusText ?? this.aboutStatusText,
+    showAvailabilityBadge: showAvailabilityBadge ?? this.showAvailabilityBadge,
+    miniRoleBadge: miniRoleBadge ?? this.miniRoleBadge,
+    profileSkillTags: profileSkillTags ?? this.profileSkillTags,
+    commitments: commitments ?? this.commitments,
   );
 
   static ProfileData get defaultData => const ProfileData(
@@ -142,6 +254,30 @@ class ProfileData {
     twitterUrl: '',
     isAvailable: true,
   );
+}
+
+class CommitmentItem {
+  final String iconName;
+  final String title;
+  final String description;
+
+  const CommitmentItem({
+    required this.iconName,
+    required this.title,
+    required this.description,
+  });
+
+  factory CommitmentItem.fromMap(Map<String, dynamic> map) => CommitmentItem(
+        iconName: map['iconName'] ?? 'rocket_launch_rounded',
+        title: map['title'] ?? '',
+        description: map['description'] ?? '',
+      );
+
+  Map<String, dynamic> toMap() => {
+        'iconName': iconName,
+        'title': title,
+        'description': description,
+      };
 }
 
 class SkillData {
