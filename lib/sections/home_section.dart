@@ -26,8 +26,8 @@ class HomeSection extends StatelessWidget {
     final profile = context.watch<PortfolioProvider>().profile;
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 24 : 80,
-        vertical: isMobile ? 40 : 80,
+        horizontal: isMobile ? 20 : 80,
+        vertical: isMobile ? 36 : 80,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -77,20 +77,28 @@ class HomeSection extends StatelessWidget {
       crossAxisAlignment: isDesktop ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Available for work indicator badge
+        // Available for work indicator badge with Aurora Glow
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
             color: profile.isAvailable
-                ? const Color(0xFFECFDF5)
-                : const Color(0xFFFEF3C7),
+                ? const Color(0xFFF0FDF4)
+                : const Color(0xFFFFFBEB),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: profile.isAvailable
-                  ? const Color(0xFFA7F3D0)
+                  ? const Color(0xFFBBF7D0)
                   : const Color(0xFFFDE68A),
-              width: 1,
+              width: 1.2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: (profile.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B))
+                    .withValues(alpha: 0.12),
+                blurRadius: 12,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -103,6 +111,13 @@ class HomeSection extends StatelessWidget {
                       ? const Color(0xFF10B981)
                       : const Color(0xFFF59E0B),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (profile.isAvailable ? const Color(0xFF10B981) : const Color(0xFFF59E0B))
+                          .withValues(alpha: 0.5),
+                      blurRadius: 6,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 8),
@@ -112,7 +127,7 @@ class HomeSection extends StatelessWidget {
                     : 'Sedang Berfokus pada Proyek',
                 style: GoogleFonts.plusJakartaSans(
                   color: profile.isAvailable
-                      ? const Color(0xFF065F46)
+                      ? const Color(0xFF166534)
                       : const Color(0xFF92400E),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -122,31 +137,45 @@ class HomeSection extends StatelessWidget {
           ),
         ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.15),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 22),
 
-        // Pre-title
-        Text(
-          'Halo, Selamat Datang di Portofolio',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: isDesktop ? 18 : 15,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
-            letterSpacing: 0.5,
-          ),
+        // Pre-title with Tech Icon
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.auto_awesome, color: AppColors.primary, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              'Halo, Selamat Datang di Portofolio',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: isDesktop ? 16 : 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ],
         ).animate().fadeIn(delay: 100.ms),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
 
-        // Main Title / Name
-        Text(
-          profile.name.isNotEmpty ? profile.name : 'Mas Fiqi',
-          textAlign: isDesktop ? TextAlign.left : TextAlign.center,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: isDesktop ? 56 : 36,
-            fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
-            letterSpacing: -1.2,
-            height: 1.1,
+        // Main Title / Name with Rich Gradient Effect
+        ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Color(0xFF0F172A), Color(0xFF312E81), Color(0xFF4F46E5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: Text(
+            profile.name.isNotEmpty ? profile.name : 'Mas Fiqi',
+            textAlign: isDesktop ? TextAlign.left : TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: isDesktop ? 56 : 36,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1.2,
+              height: 1.1,
+            ),
           ),
         ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
 
@@ -199,9 +228,9 @@ class HomeSection extends StatelessWidget {
           ],
         ).animate().fadeIn(delay: 500.ms),
 
-        const SizedBox(height: 36),
+        const SizedBox(height: 34),
 
-        // Action Buttons
+        // Action Buttons with Aurora Depth
         Wrap(
           spacing: 14,
           runSpacing: 12,
@@ -211,21 +240,21 @@ class HomeSection extends StatelessWidget {
               text: 'Unduh CV / Resume',
               icon: Icons.download_rounded,
               isPrimary: true,
-              width: 190,
+              width: 195,
               onPressed: onDownloadCvTap ?? () {},
             ),
             PremiumButton(
               text: 'Lihat Portofolio',
               icon: Icons.folder_open_rounded,
               isPrimary: false,
-              width: 170,
+              width: 175,
               onPressed: onViewPortfolioTap ?? () {},
             ),
             PremiumButton(
               text: 'Hubungi Saya',
               icon: Icons.chat_bubble_outline_rounded,
               isPrimary: false,
-              width: 160,
+              width: 165,
               onPressed: onContactTap ?? () {},
             ),
           ],
@@ -233,18 +262,18 @@ class HomeSection extends StatelessWidget {
 
         const SizedBox(height: 36),
 
-        // Technology pills
+        // Technology pills with Hover State
         Wrap(
           spacing: 8,
           runSpacing: 8,
           alignment: isDesktop ? WrapAlignment.start : WrapAlignment.center,
           children: [
-            _buildTechBadge('Flutter'),
-            _buildTechBadge('Dart'),
-            _buildTechBadge('Python'),
-            _buildTechBadge('Machine Learning'),
-            _buildTechBadge('IoT System'),
-            _buildTechBadge('Firebase Cloud'),
+            _TechChip(label: 'Flutter', icon: Icons.phone_android_rounded),
+            _TechChip(label: 'Dart', icon: Icons.code_rounded),
+            _TechChip(label: 'Python', icon: Icons.terminal_rounded),
+            _TechChip(label: 'Machine Learning', icon: Icons.psychology_rounded),
+            _TechChip(label: 'IoT System', icon: Icons.memory_rounded),
+            _TechChip(label: 'Firebase Cloud', icon: Icons.cloud_done_rounded),
           ],
         ).animate().fadeIn(delay: 700.ms),
       ],
@@ -252,27 +281,53 @@ class HomeSection extends StatelessWidget {
   }
 
   Widget _buildRightContent(BuildContext context, bool isDesktop, ProfileData profile) {
-    final imageWidth = isDesktop ? 380.0 : 250.0;
-    final imageHeight = isDesktop ? 460.0 : 300.0;
+    final imageWidth = isDesktop ? 390.0 : 260.0;
+    final imageHeight = isDesktop ? 470.0 : 310.0;
 
     return Center(
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
-          // Background soft frame decoration
+          // Aurora Glow Backdrop behind portrait
+          Positioned(
+            top: -20,
+            left: -20,
+            right: -20,
+            bottom: -20,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                gradient: const RadialGradient(
+                  colors: [
+                    Color(0x33C7D2FE),
+                    Color(0x22DDD6FE),
+                    Colors.transparent,
+                  ],
+                  stops: [0.0, 0.5, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // Background soft frame decoration with gradient border
           Container(
             width: imageWidth,
             height: imageHeight,
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.border, width: 1.2),
+              borderRadius: BorderRadius.circular(26),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary.withValues(alpha: 0.08),
                   blurRadius: 40,
                   offset: const Offset(0, 16),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.06),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -282,13 +337,13 @@ class HomeSection extends StatelessWidget {
           Container(
             width: imageWidth,
             height: imageHeight,
-            margin: const EdgeInsets.all(10),
+            margin: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(20),
               color: AppColors.backgroundAlt,
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(20),
               child: profile.photoUrl.isNotEmpty
                   ? (profile.photoUrl.startsWith('http')
                       ? Image.network(
@@ -305,25 +360,27 @@ class HomeSection extends StatelessWidget {
             ),
           ),
 
-          // Executive Floating Metric Card 1 (Bottom Left)
+          // Aurora Glass Floating Metric Card 1 (Bottom Left)
           Positioned(
             bottom: isDesktop ? -20 : -15,
             left: isDesktop ? -30 : -10,
-            child: _buildMetricCard(
-              title: 'Pengalaman',
+            child: _buildGlassMetricCard(
+              title: 'Pengalaman Nyata',
               value: '${profile.experience.isNotEmpty ? profile.experience : '3'}+ Tahun',
               icon: Icons.trending_up_rounded,
+              accentColor: AppColors.primary,
             ),
           ),
 
-          // Executive Floating Metric Card 2 (Top Right)
+          // Aurora Glass Floating Metric Card 2 (Top Right)
           Positioned(
             top: isDesktop ? -20 : -15,
             right: isDesktop ? -30 : -10,
-            child: _buildMetricCard(
+            child: _buildGlassMetricCard(
               title: 'Solusi & Riset',
-              value: '100% Verified',
-              icon: Icons.verified_outlined,
+              value: '100% Terverifikasi',
+              icon: Icons.verified_rounded,
+              accentColor: const Color(0xFF10B981),
             ),
           ),
         ],
@@ -344,18 +401,30 @@ class HomeSection extends StatelessWidget {
     );
   }
 
-  Widget _buildMetricCard({
+  Widget _buildGlassMetricCard({
     required String title,
     required String value,
     required IconData icon,
+    required Color accentColor,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.2),
-        boxShadow: AppColors.cardShadow,
+        color: const Color(0xF7FFFFFF), // Aurora semi-glass
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -363,10 +432,10 @@ class HomeSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: accentColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
+            child: Icon(icon, color: accentColor, size: 20),
           ),
           const SizedBox(width: 12),
           Column(
@@ -401,13 +470,20 @@ class HomeSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppColors.textSecondary, size: 15),
+          Icon(icon, color: AppColors.primary, size: 15),
           const SizedBox(width: 8),
           Text(
             text,
@@ -421,21 +497,64 @@ class HomeSection extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildTechBadge(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundAlt,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.plusJakartaSans(
-          color: AppColors.textSecondary,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
+class _TechChip extends StatefulWidget {
+  final String label;
+  final IconData icon;
+
+  const _TechChip({required this.label, required this.icon});
+
+  @override
+  State<_TechChip> createState() => _TechChipState();
+}
+
+class _TechChipState extends State<_TechChip> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: _isHovered ? const Color(0xFFEEF2FF) : AppColors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: _isHovered ? AppColors.primary : AppColors.border,
+            width: 1,
+          ),
+          boxShadow: _isHovered
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.14),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  )
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              widget.icon,
+              size: 13,
+              color: _isHovered ? AppColors.primary : AppColors.textSecondary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              widget.label,
+              style: GoogleFonts.plusJakartaSans(
+                color: _isHovered ? AppColors.primary : AppColors.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

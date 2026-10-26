@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../core/constants/app_colors.dart';
 import '../../services/firebase_service.dart';
 import '../../core/models/portfolio_data.dart';
 import 'admin_login_page.dart';
-
-
 import 'cover_letter_generator_page.dart';
 import 'multi_role_cv_generator_page.dart';
 
@@ -29,10 +29,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1026),
+      backgroundColor: AppColors.background,
       body: Row(
         children: [
-          // Sidebar
+          // Sidebar in modern light SaaS theme
           _buildSidebar(),
           // Content
           Expanded(child: _buildContent()),
@@ -43,49 +43,96 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _buildSidebar() {
     return Container(
-      width: 220,
-      color: const Color(0xFF0F081C),
+      width: 240,
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(right: BorderSide(color: Color(0xFFE2E8F0), width: 1.0)),
+      ),
       child: Column(
         children: [
-          // Header
+          // Header Brand
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF58DBFF)),
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.25),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  child: const Icon(Icons.admin_panel_settings,
-                      color: Color(0xFF58DBFF), size: 20),
+                  child: const Center(
+                    child: Icon(Icons.admin_panel_settings_rounded,
+                        color: Colors.white, size: 20),
+                  ),
                 ),
-                const SizedBox(width: 10),
-                const Text('Admin Panel',
-                    style: TextStyle(color: Colors.white,
-                        fontWeight: FontWeight.bold, fontSize: 14)),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Admin Panel',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    Text(
+                      'CMS Portfolio',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.textMuted,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
-          const Divider(color: Colors.white12),
-          const SizedBox(height: 8),
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
+          const SizedBox(height: 12),
           // Menu items
-          ...List.generate(_tabs.length, (i) => _buildSidebarItem(i)),
-          const Spacer(),
-          const Divider(color: Colors.white12),
-          // Logout
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.redAccent, size: 20),
-            title: const Text('Keluar', style: TextStyle(color: Colors.redAccent, fontSize: 14)),
-            onTap: () async {
-              await FirebaseService().logoutAdmin();
-              if (!mounted) return;
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (_) => const AdminLoginPage()));
-            },
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              children: List.generate(_tabs.length, (i) => _buildSidebarItem(i)),
+            ),
           ),
-          const SizedBox(height: 8),
+          const Divider(height: 1, color: Color(0xFFE2E8F0)),
+          // Logout Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: ListTile(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              leading: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 18),
+              title: Text(
+                'Keluar Admin',
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFFEF4444),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              onTap: () async {
+                await FirebaseService().logoutAdmin();
+                if (!mounted) return;
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => const AdminLoginPage()));
+              },
+            ),
+          ),
+          const SizedBox(height: 6),
         ],
       ),
     );
@@ -93,33 +140,52 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _buildSidebarItem(int index) {
     final isSelected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF4C2B9A).withValues(alpha: 0.3)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          border: isSelected
-              ? Border.all(color: const Color(0xFF58DBFF).withValues(alpha: 0.3))
-              : null,
-        ),
-        child: Row(
-          children: [
-            Icon(_tabIcons[index],
-                color: isSelected ? const Color(0xFF58DBFF) : Colors.white54,
-                size: 18),
-            const SizedBox(width: 10),
-            Text(_tabs[index],
-                style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.white60,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        onTap: () => setState(() => _selectedTab = index),
+        borderRadius: BorderRadius.circular(10),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.08)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: isSelected
+                ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1.0)
+                : null,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                _tabIcons[index],
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                size: 18,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _tabs[index],
+                  style: GoogleFonts.plusJakartaSans(
+                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
                     fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)),
-          ],
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                Container(
+                  width: 5,
+                  height: 5,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -130,29 +196,49 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       children: [
         // Top bar
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
           decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.white12)),
+            color: AppColors.surface,
+            border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1.0)),
           ),
           child: Row(
             children: [
-              Text(_tabs[_selectedTab],
-                  style: const TextStyle(color: Colors.white,
-                      fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                _tabs[_selectedTab],
+                style: GoogleFonts.plusJakartaSans(
+                  color: AppColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+              ),
               const Spacer(),
+              // Public View Quick Link
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
+                icon: const Icon(Icons.visibility_outlined, size: 16, color: AppColors.textSecondary),
+                label: Text(
+                  'Lihat Web Publik',
+                  style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: const Color(0xFFF0FDF4),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                  border: Border.all(color: const Color(0xFFBBF7D0)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.circle, color: Colors.greenAccent, size: 8),
-                    SizedBox(width: 6),
-                    Text('Live', style: TextStyle(color: Colors.greenAccent, fontSize: 12)),
+                    const Icon(Icons.circle, color: Color(0xFF10B981), size: 7),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Live Firebase',
+                      style: GoogleFonts.plusJakartaSans(color: const Color(0xFF166534), fontSize: 12, fontWeight: FontWeight.w700),
+                    ),
                   ],
                 ),
               ),
@@ -475,16 +561,35 @@ class _ProfileEditorState extends State<_ProfileEditor> {
 
   Widget _buildSection(String title, List<Widget> children) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F081C).withValues(alpha: 0.8),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white12),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(
-            color: Color(0xFF58DBFF), fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 16),
+        Row(
+          children: [
+            Container(width: 4, height: 16, decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: GoogleFonts.plusJakartaSans(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
         ...children,
       ]),
     );
@@ -492,31 +597,44 @@ class _ProfileEditorState extends State<_ProfileEditor> {
 
   Widget _field(String label, TextEditingController ctrl, IconData icon, {int maxLines = 1, ValueChanged<String>? onChanged}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: ctrl,
-        maxLines: maxLines,
-        onChanged: onChanged,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white54, fontSize: 13),
-          prefixIcon: Icon(icon, color: Colors.white38, size: 18),
-          filled: true,
-          fillColor: Colors.white.withValues(alpha: 0.04),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white12),
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              color: AppColors.textPrimary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white12),
+          const SizedBox(height: 6),
+          TextField(
+            controller: ctrl,
+            maxLines: maxLines,
+            onChanged: onChanged,
+            style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary, fontSize: 13),
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 18),
+              filled: true,
+              fillColor: AppColors.backgroundAlt,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+              ),
+            ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF58DBFF)),
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -1589,12 +1707,17 @@ class _AddButton extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 18),
-      label: Text(label),
+      label: Text(
+        label,
+        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, fontSize: 13),
+      ),
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF4C2B9A),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shadowColor: AppColors.primary.withValues(alpha: 0.3),
       ),
     );
   }
@@ -1614,43 +1737,75 @@ class _ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F081C).withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white12),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(children: [
         if (imageUrl != null && imageUrl!.isNotEmpty) ...[
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(imageUrl!, width: 50, height: 50, fit: BoxFit.cover),
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              imageUrl!,
+              width: 54,
+              height: 54,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 54,
+                height: 54,
+                color: AppColors.backgroundAlt,
+                child: const Icon(Icons.broken_image_rounded, color: AppColors.textMuted, size: 24),
+              ),
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
         ],
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 2),
-          Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+          Text(
+            title,
+            style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 14),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary, fontSize: 12),
+          ),
         ])),
-        IconButton(icon: const Icon(Icons.edit, color: Colors.white54, size: 18), onPressed: onEdit),
         IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 18),
+          icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary, size: 18),
+          tooltip: 'Edit Data',
+          onPressed: onEdit,
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
+          tooltip: 'Hapus Data',
           onPressed: () async {
             final ok = await showDialog<bool>(
               context: context,
               builder: (_) => AlertDialog(
-                backgroundColor: const Color(0xFF0F081C),
-                title: const Text('Hapus?', style: TextStyle(color: Colors.white)),
-                content: Text('Hapus "$title"?', style: const TextStyle(color: Colors.white70)),
+                backgroundColor: AppColors.surface,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: Text('Hapus Data?', style: GoogleFonts.plusJakartaSans(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+                content: Text('Apakah Anda yakin ingin menghapus "$title"?', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)),
                 actions: [
-                  TextButton(onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Batal')),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text('Batal', style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary)),
+                  ),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
                     onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+                    child: Text('Hapus', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

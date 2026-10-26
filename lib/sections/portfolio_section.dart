@@ -134,7 +134,7 @@ class _PortfolioCardState extends State<_PortfolioCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Thumbnail
+            // Thumbnail with smooth hover zoom
             SizedBox(
               height: 200,
               child: ClipRRect(
@@ -142,21 +142,37 @@ class _PortfolioCardState extends State<_PortfolioCard> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    widget.data.imageUrl.isNotEmpty
-                        ? Image.network(
-                            widget.data.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _buildPlaceholder(),
-                          )
-                        : _buildPlaceholder(),
+                    AnimatedScale(
+                      scale: _isHovered ? 1.05 : 1.0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: widget.data.imageUrl.isNotEmpty
+                          ? Image.network(
+                              widget.data.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                            )
+                          : _buildPlaceholder(),
+                    ),
                     if (_isHovered)
                       Container(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        child: const Center(
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            radius: 24,
-                            child: Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 22),
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        child: Center(
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.25),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 20),
                           ),
                         ),
                       ),
