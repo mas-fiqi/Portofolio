@@ -132,7 +132,7 @@ class ProfileData {
     location: 'Pamekasan, Madura, Indonesia',
     email: 'cakfiqi2@gmail.com',
     experience: '3+',
-    photoUrl: 'assets/images/ChatGPT Image Jul 3, 2026, 07_20_44 AM.png',
+    photoUrl: 'assets/images/profile_suit_cutout.png',
     phone: '+6287761571291',
     whatsapp: '6287761571291',
     githubUrl: 'https://github.com/mas-fiqi',

@@ -372,12 +372,12 @@ class HomeSection extends StatelessWidget {
   }
 
   Widget _buildRightContent(BuildContext context, bool isDesktop, ProfileData profile) {
-    final photoWidth = isDesktop ? 320.0 : 240.0;
-    final photoHeight = isDesktop ? 440.0 : 320.0;
+    final photoWidth = isDesktop ? 360.0 : 260.0;
+    final photoHeight = isDesktop ? 500.0 : 360.0;
 
     return Center(
       child: SizedBox(
-        width: isDesktop ? 560 : 340,
+        width: isDesktop ? 580 : 340,
         height: isDesktop ? 540 : 420,
         child: Stack(
           clipBehavior: Clip.none,
@@ -447,44 +447,26 @@ class HomeSection extends StatelessWidget {
               ),
             ),
 
-            // 4. Main Portrait Photo (Original Asset from Project)
+            // 4. Main Portrait Photo (Seamless Cutout integrating directly with template)
             Positioned(
               bottom: 0,
-              child: Container(
+              child: SizedBox(
                 width: photoWidth,
                 height: photoHeight,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF0F172A).withValues(alpha: 0.12),
-                      blurRadius: 40,
-                      offset: const Offset(0, 16),
-                    ),
-                    BoxShadow(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-                      blurRadius: 50,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: profile.photoUrl.isNotEmpty
-                      ? (profile.photoUrl.startsWith('http')
-                          ? Image.network(
-                              profile.photoUrl,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
-                              errorBuilder: (_, __, ___) => _buildPlaceholderPhoto(),
-                            )
-                          : Image.asset(
-                              profile.photoUrl,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
-                              errorBuilder: (_, __, ___) => _buildPlaceholderPhoto(),
-                            ))
-                      : _buildPlaceholderPhoto(),
+                child: Image.asset(
+                  'assets/images/profile_suit_cutout.png',
+                  fit: BoxFit.contain,
+                  alignment: Alignment.bottomCenter,
+                  errorBuilder: (_, __, ___) {
+                    if (profile.photoUrl.isNotEmpty && profile.photoUrl.startsWith('http')) {
+                      return Image.network(
+                        profile.photoUrl,
+                        fit: BoxFit.contain,
+                        alignment: Alignment.bottomCenter,
+                      );
+                    }
+                    return _buildPlaceholderPhoto();
+                  },
                 ),
               ),
             ),
