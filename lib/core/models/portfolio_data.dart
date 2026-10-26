@@ -228,6 +228,7 @@ class ExperienceData {
   final String period;
   final String description;
   final String icon;
+  final String imageUrl;
 
   const ExperienceData({
     required this.id,
@@ -236,6 +237,7 @@ class ExperienceData {
     required this.period,
     required this.description,
     required this.icon,
+    this.imageUrl = '',
   });
 
   factory ExperienceData.fromMap(String id, Map<String, dynamic> map) => ExperienceData(
@@ -245,18 +247,20 @@ class ExperienceData {
         period: map['period'] ?? '',
         description: map['description'] ?? '',
         icon: map['icon'] ?? 'work',
+        imageUrl: map['imageUrl'] ?? '',
       );
 
   Map<String, dynamic> toMap() => {
         'title': title, 'company': company,
         'period': period, 'description': description, 'icon': icon,
+        'imageUrl': imageUrl,
       };
 
   static List<ExperienceData> get defaultList => [
-    const ExperienceData(id: '1', title: 'Mahasiswa IT', company: 'Universitas', period: '2022', description: 'Mulai mempelajari Teknologi Informasi dan mengeksplorasi dasar-dasar rekayasa perangkat lunak.', icon: 'school'),
-    const ExperienceData(id: '2', title: 'Pengembang Flutter', company: 'Tech Solutions', period: '2023', description: 'Mengembangkan aplikasi seluler lintas platform menggunakan framework Flutter.', icon: 'smartphone'),
-    const ExperienceData(id: '3', title: 'Peneliti AI', company: 'Laboratorium AI Universitas', period: '2024', description: 'Meneliti dan mengimplementasikan model Machine Learning seperti LSTM dan Random Forest.', icon: 'brain'),
-    const ExperienceData(id: '4', title: 'Freelancer', company: 'Bekerja Sendiri', period: '2026', description: 'Mengerjakan berbagai proyek klien premium yang mencakup Flutter, AI, dan IoT.', icon: 'work'),
+    const ExperienceData(id: '1', title: 'Mahasiswa IT', company: 'Universitas', period: '2022', description: 'Mulai mempelajari Teknologi Informasi dan mengeksplorasi dasar-dasar rekayasa perangkat lunak.', icon: 'school', imageUrl: ''),
+    const ExperienceData(id: '2', title: 'Pengembang Flutter', company: 'Tech Solutions', period: '2023', description: 'Mengembangkan aplikasi seluler lintas platform menggunakan framework Flutter.', icon: 'smartphone', imageUrl: ''),
+    const ExperienceData(id: '3', title: 'Peneliti AI', company: 'Laboratorium AI Universitas', period: '2024', description: 'Meneliti dan mengimplementasikan model Machine Learning seperti LSTM dan Random Forest.', icon: 'brain', imageUrl: ''),
+    const ExperienceData(id: '4', title: 'Freelancer', company: 'Bekerja Sendiri', period: '2026', description: 'Mengerjakan berbagai proyek klien premium yang mencakup Flutter, AI, dan IoT.', icon: 'work', imageUrl: ''),
   ];
 }
 

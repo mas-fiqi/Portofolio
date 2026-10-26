@@ -181,6 +181,19 @@ class _ExperienceTimelineItem extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                    if (data.imageUrl.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          data.imageUrl,
+                          height: 140,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     Text(
                       data.description,

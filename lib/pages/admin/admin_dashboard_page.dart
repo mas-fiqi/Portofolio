@@ -6,6 +6,7 @@ import 'admin_login_page.dart';
 
 
 import 'cover_letter_generator_page.dart';
+import 'multi_role_cv_generator_page.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -16,12 +17,13 @@ class AdminDashboardPage extends StatefulWidget {
 
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
   int _selectedTab = 0;
-  final _tabs = ['Profil', 'Keahlian', 'Portofolio', 'Pengalaman', 'Sertifikat', 'Riset', 'Galeri', 'Dokumen', 'Surat Lamaran'];
+  final _tabs = ['Profil', 'Keahlian', 'Portofolio', 'Pengalaman', 'Sertifikat', 'Riset', 'Galeri', 'Dokumen', 'Surat Lamaran', 'Pembuat CV (Multi-Peran)'];
   final _tabIcons = [
     Icons.person_outline, Icons.code, Icons.folder_outlined,
     Icons.work_outline, Icons.workspace_premium_outlined,
     Icons.menu_book_outlined, Icons.photo_library_outlined,
     Icons.description_outlined, Icons.auto_stories_outlined,
+    Icons.badge_outlined,
   ];
 
   @override
@@ -179,6 +181,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case 6: return const _GalleryEditor();
       case 7: return const _DocumentsEditor();
       case 8: return const CoverLetterGeneratorWidget();
+      case 9: return const MultiRoleCvGeneratorWidget();
       default: return const SizedBox.shrink();
     }
   }
@@ -826,20 +829,23 @@ class _ExperienceEditor extends StatelessWidget {
     final companyCtrl = TextEditingController(text: ex?.company ?? '');
     final periodCtrl = TextEditingController(text: ex?.period ?? '');
     final descCtrl = TextEditingController(text: ex?.description ?? '');
+    final expImgCtrl = TextEditingController(text: ex?.imageUrl ?? '');
 
     showDialog(context: ctx, builder: (_) => AlertDialog(
       backgroundColor: const Color(0xFF0F081C),
       title: Text(ex == null ? 'Tambah Pengalaman' : 'Edit Pengalaman',
           style: const TextStyle(color: Colors.white)),
-      content: SizedBox(width: 400, child: Column(mainAxisSize: MainAxisSize.min, children: [
+      content: SizedBox(width: 440, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
         _tf('Jabatan/Posisi', titleCtrl),
         const SizedBox(height: 12),
         _tf('Perusahaan/Institusi', companyCtrl),
         const SizedBox(height: 12),
         _tf('Tahun (cth: 2023 - 2024)', periodCtrl),
         const SizedBox(height: 12),
-        _tf('Deskripsi', descCtrl, maxLines: 3),
-      ])),
+        _tf('URL Foto / Logo Tempat Kerja (Google Drive / GitHub / Direct Link)', expImgCtrl),
+        const SizedBox(height: 12),
+        _tf('Deskripsi Pekerjaan & Tanggung Jawab', descCtrl, maxLines: 3),
+      ]))),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx),
             child: const Text('Batal', style: TextStyle(color: Colors.white54))),
@@ -850,6 +856,7 @@ class _ExperienceEditor extends StatelessWidget {
               id: ex?.id ?? 'temp_${DateTime.now().millisecondsSinceEpoch}',
               title: titleCtrl.text, company: companyCtrl.text,
               period: periodCtrl.text, description: descCtrl.text, icon: 'work',
+              imageUrl: expImgCtrl.text.trim(),
             ), order: order);
             if (ctx.mounted) Navigator.pop(ctx);
           },
