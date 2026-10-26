@@ -1081,114 +1081,496 @@ class _GalleryEditor extends StatefulWidget {
 
 class _GalleryEditorState extends State<_GalleryEditor> {
   final _svc = FirebaseService();
-  bool _uploading = false;
+  bool _saving = false;
 
-  Future<void> _uploadImages() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image, withData: true, allowMultiple: true);
-    if (result == null || result.files.isEmpty) return;
-    setState(() => _uploading = true);
-    try {
-      for (final file in result.files) {
-        if (file.bytes == null) continue;
-        final url = await _svc.uploadImage(file.bytes!,
-            'gallery/${DateTime.now().millisecondsSinceEpoch}_${file.name}');
-        await _svc.addGalleryImage(url);
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Foto berhasil diupload!'),
-                backgroundColor: Colors.green));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
-      }
-    } finally {
-      if (mounted) setState(() => _uploading = false);
-    }
+  void _showMediaDialog([GalleryMediaData? item]) {
+    final titleCtrl = TextEditingController(text: item?.title ?? '');
+    final descCtrl = TextEditingController(text: item?.description ?? '');
+    final urlCtrl = TextEditingController(text: item?.mediaUrl ?? '');
+    final thumbCtrl = TextEditingController(text: item?.thumbnailUrl ?? '');
+    String mediaType = item?.mediaType ?? 'photo'; // 'photo' or 'video'
+    String category = item?.category ?? 'Liburan';
+
+    final categories = ['Liburan', 'Kuliah', 'Trip', 'Santai', 'Kegiatan', 'Lainnya'];
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setS) => AlertDialog(
+          backgroundColor: const Color(0xFF0F081C),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(
+                mediaType == 'video' ? Icons.videocam_rounded : Icons.photo_library_rounded,
+                color: const Color(0xFF58DBFF),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                item == null ? 'Tambah Momen / Healing' : 'Edit Momen',
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 480,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Tipe Media: Foto / Video
+                  const Text('Tipe Media', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => setS(() => mediaType = 'photo'),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: mediaType == 'photo'
+                                  ? const Color(0xFF4C2B9A).withValues(alpha: 0.6)
+                                  : Colors.white.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: mediaType == 'photo' ? const Color(0xFF58DBFF) : Colors.white12,
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.image_rounded, color: Colors.white, size: 16),
+                                SizedBox(width: 6),
+                                Text('Foto', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => setS(() => mediaType = 'video'),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: mediaType == 'video'
+                                  ? const Color(0xFFEF4444).withValues(alpha: 0.6)
+                                  : Colors.white.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: mediaType == 'video' ? const Color(0xFFEF4444) : Colors.white12,
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 16),
+                                SizedBox(width: 6),
+                                Text('Video', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Judul
+                  const Text('Judul Momen / Healing', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: titleCtrl,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Misal: Liburan ke Bromo / Nongkrong Kuliah',
+                      hintStyle: const TextStyle(color: Colors.white30, fontSize: 13),
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Link Media (URL Threads, YouTube, IG, TikTok, Drive, direct MP4/JPG)
+                  Row(
+                    children: [
+                      Text(
+                        mediaType == 'video' ? 'Link Video (Threads / YouTube / MP4)' : 'Link Foto (URL / Drive / GitHub)',
+                        style: const TextStyle(color: Color(0xFF58DBFF), fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: urlCtrl,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: mediaType == 'video'
+                          ? 'https://www.threads.net/... atau https://youtube.com/...'
+                          : 'https://images.unsplash.com/... atau link foto',
+                      hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF58DBFF))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    mediaType == 'video'
+                        ? '*Bisa masukkan link postingan Threads (THREA.DS), YouTube, TikTok, atau link video langsung.'
+                        : '*Bisa masukkan link gambar Google Drive, Unsplash, GitHub Raw, Imgur, dll.',
+                    style: const TextStyle(color: Colors.white38, fontSize: 11, fontStyle: FontStyle.italic),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Thumbnail (khusus video atau cover)
+                  const Text('Link Gambar Thumbnail / Sampul (Opsional)', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: thumbCtrl,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'https://... (Kosongkan jika YouTube karena otomatis)',
+                      hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Kategori
+                  const Text('Kategori', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    initialValue: categories.contains(category) ? category : categories.first,
+                    dropdownColor: const Color(0xFF1A0F30),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                    items: categories
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
+                    onChanged: (v) => setS(() => category = v ?? 'Liburan'),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Deskripsi
+                  const Text('Deskripsi / Catatan Momen', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: descCtrl,
+                    maxLines: 2,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Cerita singkat momen liburan, healing atau kuliah...',
+                      hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4C2B9A),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                if (urlCtrl.text.trim().isEmpty) return;
+                Navigator.pop(ctx);
+                setState(() => _saving = true);
+                try {
+                  final newItem = GalleryMediaData(
+                    id: item?.id ?? '',
+                    title: titleCtrl.text.trim().isEmpty
+                        ? (mediaType == 'video' ? 'Video Dokumentasi' : 'Foto Momen')
+                        : titleCtrl.text.trim(),
+                    description: descCtrl.text.trim(),
+                    mediaUrl: urlCtrl.text.trim(),
+                    mediaType: mediaType,
+                    category: category,
+                    thumbnailUrl: thumbCtrl.text.trim(),
+                    createdAt: item?.createdAt ?? DateTime.now(),
+                  );
+                  await _svc.saveGalleryMedia(newItem);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Momen berhasil disimpan!'), backgroundColor: Colors.green),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gagal menyimpan: $e'), backgroundColor: Colors.red),
+                    );
+                  }
+                } finally {
+                  if (mounted) setState(() => _saving = false);
+                }
+              },
+              child: const Text('Simpan'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<String>>(
-      stream: _svc.galleryStream(),
+    return StreamBuilder<List<GalleryMediaData>>(
+      stream: _svc.galleryMediaStream(),
       builder: (ctx, snap) {
-        final images = snap.data ?? [];
-        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          _AddButton(
-            label: _uploading ? 'Mengupload...' : 'Upload Foto (bisa multiple)',
-            onTap: _uploading ? null : _uploadImages,
-            icon: Icons.upload,
-          ),
-          const SizedBox(height: 16),
-          if (images.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(40),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F081C).withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: const Center(
-                child: Column(children: [
-                  Icon(Icons.photo_library_outlined, color: Colors.white24, size: 48),
-                  SizedBox(height: 12),
-                  Text('Belum ada foto di galeri',
-                      style: TextStyle(color: Colors.white38)),
-                ]),
-              ),
-            )
-          else
-            GridView.builder(
-              shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, crossAxisSpacing: 10, mainAxisSpacing: 10),
-              itemCount: images.length,
-              itemBuilder: (ctx, i) => Stack(children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(images[i], fit: BoxFit.cover,
-                      width: double.infinity, height: double.infinity),
+        final mediaItems = snap.data ?? [];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Action Bar
+            Row(
+              children: [
+                _AddButton(
+                  label: _saving ? 'Menyimpan...' : 'Tambah Momen (Foto / Video)',
+                  onTap: _saving ? null : () => _showMediaDialog(),
+                  icon: Icons.add_to_photos_rounded,
                 ),
-                Positioned(
-                  top: 4, right: 4,
-                  child: GestureDetector(
-                    onTap: () async {
-                      final ok = await showDialog<bool>(
-                        context: ctx,
-                        builder: (_) => AlertDialog(
-                          backgroundColor: const Color(0xFF0F081C),
-                          title: const Text('Hapus foto?', style: TextStyle(color: Colors.white)),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(ctx, false),
-                                child: const Text('Batal')),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Hapus', style: TextStyle(color: Colors.white)),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (ok == true) {
-                        await _svc.removeGalleryImage(images[i]);
-                        await _svc.deleteImage(images[i]);
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.8),
-                        shape: BoxShape.circle),
-                      child: const Icon(Icons.close, color: Colors.white, size: 12),
-                    ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Color(0xFF58DBFF), size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Total: ${mediaItems.length} momen liburan & healing',
+                        style: const TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                    ],
                   ),
                 ),
-              ]),
+              ],
             ),
-        ]);
+
+            const SizedBox(height: 20),
+
+            if (mediaItems.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(40),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F081C).withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.wb_sunny_outlined, color: Colors.white24, size: 48),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Belum ada foto atau video healing yang ditambahkan',
+                        style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Klik tombol di atas untuk memasukkan link video Threads, YouTube, atau foto liburan.',
+                        style: TextStyle(color: Colors.white38, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                  childAspectRatio: 1.15,
+                ),
+                itemCount: mediaItems.length,
+                itemBuilder: (ctx, i) {
+                  final item = mediaItems[i];
+                  final isVideo = item.isVideo;
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F081C).withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Media Header / Badge & Actions
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: isVideo ? Colors.red.withValues(alpha: 0.2) : Colors.blue.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: isVideo ? Colors.redAccent : Colors.lightBlueAccent,
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      isVideo ? Icons.videocam_rounded : Icons.photo_camera_rounded,
+                                      size: 11,
+                                      color: isVideo ? Colors.redAccent : Colors.lightBlueAccent,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      item.platform,
+                                      style: TextStyle(
+                                        color: isVideo ? Colors.redAccent : Colors.lightBlueAccent,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.white54, size: 16),
+                                onPressed: () => _showMediaDialog(item),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                              const SizedBox(width: 10),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 16),
+                                onPressed: () async {
+                                  final ok = await showDialog<bool>(
+                                    context: ctx,
+                                    builder: (_) => AlertDialog(
+                                      backgroundColor: const Color(0xFF0F081C),
+                                      title: const Text('Hapus Momen?', style: TextStyle(color: Colors.white)),
+                                      content: Text('Hapus "${item.title}"?', style: const TextStyle(color: Colors.white70)),
+                                      actions: [
+                                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                          onPressed: () => Navigator.pop(ctx, true),
+                                          child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (ok == true) {
+                                    await _svc.deleteGalleryMedia(item.id);
+                                  }
+                                },
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // Title & Info
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.title,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item.category.isNotEmpty ? item.category : 'Liburan',
+                                style: const TextStyle(color: Color(0xFF58DBFF), fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // URL Preview Snippet
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black26,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isVideo ? Icons.link_rounded : Icons.image_outlined,
+                                  color: Colors.white38,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    item.mediaUrl,
+                                    style: const TextStyle(color: Colors.white60, fontSize: 11),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
+        );
       },
     );
   }

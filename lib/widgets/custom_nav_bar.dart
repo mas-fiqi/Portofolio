@@ -18,7 +18,7 @@ class CustomNavBar extends StatelessWidget {
 
   final List<String> menus = const [
     'Beranda', 'Tentang', 'Keahlian', 'Portofolio',
-    'Riset', 'Sertifikat', 'Pengalaman', 'Galeri', 'Kontak',
+    'Riset', 'Sertifikat', 'Pengalaman', 'Galeri & Momen', 'Kontak',
   ];
 
   @override

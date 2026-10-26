@@ -14,6 +14,7 @@ class PortfolioProvider extends ChangeNotifier {
   List<CertificateData> _certificates = CertificateData.defaultList;
   List<ResearchData> _research = ResearchData.defaultList;
   List<String> _gallery = [];
+  List<GalleryMediaData> _galleryMedia = GalleryMediaData.defaultList;
   List<DocumentFileData> _documents = [];
 
   ProfileData get profile => _profile;
@@ -23,6 +24,7 @@ class PortfolioProvider extends ChangeNotifier {
   List<CertificateData> get certificates => _certificates;
   List<ResearchData> get research => _research;
   List<String> get gallery => _gallery;
+  List<GalleryMediaData> get galleryMedia => _galleryMedia;
   List<DocumentFileData> get documents => _documents;
 
   /// Dokumen publik yang dapat diunduh oleh pengunjung
@@ -128,6 +130,19 @@ class PortfolioProvider extends ChangeNotifier {
       },
       onError: (err, stack) {
         debugPrint('[PortfolioProvider] Error loading gallery from Firestore: $err');
+      },
+    );
+
+    _svc.galleryMediaStream().listen(
+      (data) {
+        debugPrint('[PortfolioProvider] GalleryMedia received: ${data.length} items');
+        if (data.isNotEmpty) {
+          _galleryMedia = data;
+          notifyListeners();
+        }
+      },
+      onError: (err, stack) {
+        debugPrint('[PortfolioProvider] Error loading galleryMedia from Firestore: $err');
       },
     );
 

@@ -6,6 +6,7 @@ class PortfolioData {
   final List<ExperienceData> experience;
   final List<CertificateData> certificates;
   final List<String> gallery;
+  final List<GalleryMediaData> galleryMedia;
   final List<ResearchData> research;
 
   const PortfolioData({
@@ -15,6 +16,7 @@ class PortfolioData {
     required this.experience,
     required this.certificates,
     required this.gallery,
+    this.galleryMedia = const [],
     required this.research,
   });
 
@@ -25,6 +27,7 @@ class PortfolioData {
         experience: ExperienceData.defaultList,
         certificates: CertificateData.defaultList,
         gallery: [],
+        galleryMedia: GalleryMediaData.defaultList,
         research: ResearchData.defaultList,
       );
 }
@@ -296,6 +299,97 @@ class CertificateData {
     const CertificateData(id: '1', name: 'Flutter Certified Developer', issuer: 'Google', year: '2024', imageUrl: ''),
     const CertificateData(id: '2', name: 'Machine Learning Specialist', issuer: 'Coursera', year: '2024', imageUrl: ''),
     const CertificateData(id: '3', name: 'TensorFlow Developer Certificate', issuer: 'Google', year: '2025', imageUrl: ''),
+  ];
+}
+
+class GalleryMediaData {
+  final String id;
+  final String title;
+  final String description;
+  final String mediaUrl;
+  final String mediaType; // 'video' or 'photo'
+  final String category;  // 'Liburan', 'Kuliah', 'Trip', 'Santai', dll
+  final String thumbnailUrl;
+  final DateTime createdAt;
+
+  const GalleryMediaData({
+    required this.id,
+    required this.title,
+    this.description = '',
+    required this.mediaUrl,
+    required this.mediaType,
+    this.category = 'Liburan',
+    this.thumbnailUrl = '',
+    required this.createdAt,
+  });
+
+  bool get isVideo => mediaType.toLowerCase() == 'video';
+
+  String get platform {
+    final lower = mediaUrl.toLowerCase();
+    if (lower.contains('threads.net')) return 'Threads';
+    if (lower.contains('youtube.com') || lower.contains('youtu.be')) return 'YouTube';
+    if (lower.contains('instagram.com')) return 'Instagram';
+    if (lower.contains('tiktok.com')) return 'TikTok';
+    if (lower.contains('drive.google.com')) return 'Google Drive';
+    if (lower.endsWith('.mp4') || lower.endsWith('.webm') || lower.endsWith('.mov')) return 'Direct Video';
+    return isVideo ? 'Video Link' : 'Foto';
+  }
+
+  factory GalleryMediaData.fromMap(String id, Map<String, dynamic> map) => GalleryMediaData(
+        id: id,
+        title: map['title'] ?? '',
+        description: map['description'] ?? '',
+        mediaUrl: map['mediaUrl'] ?? '',
+        mediaType: map['mediaType'] ?? 'photo',
+        category: map['category'] ?? 'Liburan',
+        thumbnailUrl: map['thumbnailUrl'] ?? '',
+        createdAt: map['createdAt'] != null
+            ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+            : DateTime.now(),
+      );
+
+  Map<String, dynamic> toMap() => {
+        'title': title,
+        'description': description,
+        'mediaUrl': mediaUrl,
+        'mediaType': mediaType,
+        'category': category,
+        'thumbnailUrl': thumbnailUrl,
+        'createdAt': createdAt.millisecondsSinceEpoch,
+      };
+
+  static List<GalleryMediaData> get defaultList => [
+    GalleryMediaData(
+      id: '1',
+      title: 'Momen Liburan & Healing Bersama',
+      description: 'Menikmati keindahan alam dan suasana santai melepas penat setelah rutinitas perkuliahan dan coding.',
+      mediaUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+      mediaType: 'photo',
+      category: 'Liburan',
+      thumbnailUrl: '',
+      createdAt: DateTime(2025, 7, 10),
+    ),
+    GalleryMediaData(
+      id: '2',
+      title: 'Dokumentasi Video Trip & Jalan Santai',
+      description: 'Rekaman video seru saat perjalanan healing dan hunting spot menarik.',
+      mediaUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      mediaType: 'video',
+      category: 'Trip',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80',
+      createdAt: DateTime(2025, 8, 15),
+    ),
+    GalleryMediaData(
+      id: '3',
+      title: 'Kebersamaan Kampus & Teman Kuliah',
+      description: 'Momen berharga bersama teman-teman kampus saat diskusi dan nongkrong asik.',
+      mediaUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80',
+      mediaType: 'photo',
+      category: 'Kuliah',
+      thumbnailUrl: '',
+      createdAt: DateTime(2025, 9, 20),
+    ),
   ];
 }
 

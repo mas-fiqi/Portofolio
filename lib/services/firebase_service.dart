@@ -192,7 +192,46 @@ class FirebaseService {
         .collection('items').doc(id).delete();
   }
 
-  // ─── Gallery ──────────────────────────────────────────────
+  // ─── Gallery & Moments (Foto & Video) ───────────────────
+
+  Stream<List<GalleryMediaData>> galleryMediaStream() {
+    return _db
+        .collection('portfolio')
+        .doc('gallery')
+        .collection('media_items')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((d) => GalleryMediaData.fromMap(d.id, d.data()))
+            .toList());
+  }
+
+  Future<void> saveGalleryMedia(GalleryMediaData item) async {
+    final data = item.toMap();
+    if (item.id.isEmpty || item.id.startsWith('temp_')) {
+      await _db
+          .collection('portfolio')
+          .doc('gallery')
+          .collection('media_items')
+          .add(data);
+    } else {
+      await _db
+          .collection('portfolio')
+          .doc('gallery')
+          .collection('media_items')
+          .doc(item.id)
+          .set(data);
+    }
+  }
+
+  Future<void> deleteGalleryMedia(String id) async {
+    await _db
+        .collection('portfolio')
+        .doc('gallery')
+        .collection('media_items')
+        .doc(id)
+        .delete();
+  }
 
   Stream<List<String>> galleryStream() {
     return _db.collection('portfolio').doc('gallery').snapshots().map((doc) {

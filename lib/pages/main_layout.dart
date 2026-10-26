@@ -173,7 +173,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   Widget _buildMobileDrawer() {
     final menus = [
-      'Beranda', 'Tentang', 'Keahlian', 'Portofolio', 'Riset', 'Sertifikat', 'Pengalaman', 'Galeri', 'Kontak'
+      'Beranda', 'Tentang', 'Keahlian', 'Portofolio', 'Riset', 'Sertifikat', 'Pengalaman', 'Galeri & Momen', 'Kontak'
     ];
     final profile = context.watch<PortfolioProvider>().profile;
     final displayName = profile.name.isNotEmpty ? profile.name : 'Mas Fiqi';
