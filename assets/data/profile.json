@@ -1,0 +1,11 @@
+{
+  "name": "Omar Wica Yudi",
+  "age": 21,
+  "address": "Pamekasan, Madura",
+  "email": "omarwicayudi@example.com",
+  "education": "Teknik Informatika, Universitas Islam Madura",
+  "hobbies": ["Coding", "Research", "Reading"],
+  "vision": "Menjadi pelopor teknologi AI dan IoT yang bermanfaat bagi masyarakat.",
+  "mission": "Mengembangkan solusi berbasis Machine Learning dan IoT untuk menyelesaikan masalah nyata.",
+  "description": "Saya adalah seorang Flutter Developer, AI Researcher, dan IoT Enthusiast. Berpengalaman dalam membangun aplikasi multi-platform dengan Flutter serta mengembangkan model Machine Learning untuk riset dan penerapan di bidang IoT."
+}
