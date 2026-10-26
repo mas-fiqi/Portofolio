@@ -450,13 +450,24 @@ class HomeSection extends StatelessWidget {
             // 4. Main Portrait Photo (Seamless Cutout integrating directly with template)
             Positioned(
               bottom: 0,
-              child: SizedBox(
+              child: Container(
                 width: photoWidth,
                 height: photoHeight,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                      blurRadius: 36,
+                      spreadRadius: -4,
+                      offset: const Offset(0, 16),
+                    ),
+                  ],
+                ),
                 child: Image.asset(
                   'assets/images/profile_suit_cutout.png',
                   fit: BoxFit.contain,
                   alignment: Alignment.bottomCenter,
+                  filterQuality: FilterQuality.high,
                   errorBuilder: (_, __, ___) {
                     if (profile.photoUrl.isNotEmpty && profile.photoUrl.startsWith('http')) {
                       return Image.network(
